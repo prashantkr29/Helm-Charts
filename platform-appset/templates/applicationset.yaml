@@ -7,7 +7,7 @@ spec:
   generators:
     - list:
         elements:
-{{- range .Values.applications }}
+{{- range .Values.apps }}
           - name: {{ .name }}
             namespace: {{ .namespace }}
             repoURL: {{ .repoURL }}
