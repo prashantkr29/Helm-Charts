@@ -7,38 +7,38 @@ spec:
   generators:
     - list:
         elements:
-{{- range .Values.apps }}
+{{- range .Values.applications }}
           - name: {{ .name }}
             namespace: {{ .namespace }}
             repoURL: {{ .repoURL }}
-            chart: {{ .chart }}
             version: {{ .version }}
-            values: |
-{{ .values | indent 14 }}
+{{- if .chart }}
+            chart: {{ .chart }}
+{{- end }}
+{{- if .path }}
+            path: {{ .path }}
+{{- end }}
 {{- end }}
 
   template:
     metadata:
-      name: '{{ "{{name}}" }}'
+      name: '{{`{{name}}`}}'
     spec:
       project: default
-
-      source:
-        repoURL: '{{ "{{repoURL}}" }}'
-        chart: '{{ "{{chart}}" }}'
-        targetRevision: '{{ "{{version}}" }}'
-        helm:
-          values: '{{ "{{values}}" }}'
-
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{ "{{namespace}}" }}'
+        namespace: '{{`{{namespace}}`}}'
+
+      source:
+        repoURL: '{{`{{repoURL}}`}}'
+        targetRevision: '{{`{{version}}`}}'
+        chart: '{{`{{chart}}`}}'
+        path: '{{`{{path}}`}}'
 
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
-
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
