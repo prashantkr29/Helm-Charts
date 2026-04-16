@@ -28,16 +28,16 @@ spec:
         chart: '{{ "{{chart}}" }}'
         targetRevision: '{{ "{{version}}" }}'
         helm:
-          values: |
-{{ "{{values}}" | indent 12 }}
+          values: '{{ "{{values}}" }}'
 
       destination:
-        server: {{ .Values.cluster.server }}
+        server: https://kubernetes.default.svc
         namespace: '{{ "{{namespace}}" }}'
 
       syncPolicy:
         automated:
           prune: true
+          selfHeal: true
 
         syncOptions:
           - CreateNamespace=true
