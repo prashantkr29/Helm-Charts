@@ -1,0 +1,29 @@
+cluster:
+  name: in-cluster
+  server: https://kubernetes.default.svc
+
+apps:
+  - name: cert-manager
+    namespace: cert-manager
+    repoURL: https://charts.jetstack.io
+    chart: cert-manager
+    version: v1.14.5
+    values: |
+      crds:
+        enabled: true
+
+  - name: kyverno
+    namespace: kyverno
+    repoURL: https://kyverno.github.io/kyverno/
+    chart: kyverno
+    version: 3.7.1
+    values: |
+      admissionController:
+        replicas: 2
+
+  - name: kubernetes-user
+    namespace: kubeuser
+    repoURL: https://github.com/openkube-hub/KubeUser
+    chart: kubeuser
+    version: 0.1.0
+    values: ""

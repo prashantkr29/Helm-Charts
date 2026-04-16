@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-bootstrap
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+{{- range .Values.apps }}
+          - name: {{ .name }}
+            namespace: {{ .namespace }}
+            repoURL: {{ .repoURL }}
+            chart: {{ .chart }}
+            version: {{ .version }}
+            values: |
+{{ .values | indent 14 }}
+{{- end }}
+
+  template:
+    metadata:
+      name: '{{ "{{name}}" }}'
+    spec:
+      project: default
+
+      source:
+        repoURL: '{{ "{{repoURL}}" }}'
+        chart: '{{ "{{chart}}" }}'
+        targetRevision: '{{ "{{version}}" }}'
+        helm:
+          values: |
+{{ "{{values}}" | indent 12 }}
+
+      destination:
+        server: {{ .Values.cluster.server }}
+        namespace: '{{ "{{namespace}}" }}'
+
+      syncPolicy:
+        automated:
+          prune: true
+
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - Replace=true
