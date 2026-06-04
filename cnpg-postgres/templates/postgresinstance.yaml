@@ -3,7 +3,23 @@ kind: Cluster
 metadata:
   name: {{ .Chart.Name }}
 spec:
+  {{ if eq .Values.clustermode.enabled true}}
   instances: {{ .Values.replicaCount }}
+  {{ else }}
+  instances: 1
+  {{ end }}
   storage:
-    size: {{ .Values.persistenvolume.size }}
+    pvcTemplate:
+      accessModes:
+        - {{ .Values.storage.accessmode }}
+      resources:
+        requests:
+          storage: {{ .Values.storage.size }}
+      storageClassName: {{ .Values.storage.storageclass }}
+      volumeMode: {{ .Values.storage.VolumeMode }}
+    resizeInUseVolumes: {{ .Values.storage.resize }}  
+  {{ if eq .Values.storage.WalStorage.enabled true}}
+  WalStorage:
+    size: {{ .Values.storage.WalStorage.size }}
+  {{ end }}
   imageName: {{ .Values.image.repository }}:{{ .Values.image.tag }}
