@@ -32,4 +32,7 @@ spec:
       memory: {{ .Values.resources.limits.memory }}
   postgresql:
   parameters:
-{{ toYaml .Values.postgresql.parameters | indent 4 }}    
+{{ toYaml .Values.postgresql.parameters | indent 4 }}   
+  enableSuperuserAccess: {{ .Values.superuser.enabled }}
+  superuserSecret:
+    name: {{ .Values.superuser.secretName }}
