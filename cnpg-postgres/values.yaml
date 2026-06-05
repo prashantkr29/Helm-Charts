@@ -16,6 +16,14 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+#for applying more config tuning refer https://cloudnative-pg.io/docs/1.29/postgresql_conf
+postgresql:
+  parameters:
+    shared_buffers: "2GB"
+    max_connections: "500"
+    work_mem: "16MB"
+    maintenance_work_mem: "512MB"
+
 storage:
   #Mention the size and storageClass for the postgres storage
   size: 1Gi
@@ -76,13 +84,13 @@ readinessProbe:
     path: /
     port: http
 
-# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+resources:
+  requests:
+    memory: "32Mi"
+    cpu: "50m"
+  limits:
+    memory: "128Mi"
+    cpu: "100m"
 
 nodeSelector: {}
 tolerations: []
