@@ -41,12 +41,24 @@ storage:
   # only if the underlying pvc storageClass supports onlineVolumeExpansion otherwise set to False
   resize: False
 
-# This is for setting Kubernetes Annotations to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-podAnnotations: {}
-# This is for setting Kubernetes Labels to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-podLabels: {}
+backup:
+  enabled: true
+  destinationPath: s3://postgres-backups/prod
+  endpointURL: https://minio.example.com
+  schedule: "0 2 * * *"
+  credentials:
+    secretName: minio-backup-secret
+    key: minio
+    secretkey: minio123
+  wal:
+    compression: gzip
+    maxParallel: 8
+  data:
+    compression: gzip
+  retentionPolicy: "30d"
+
+monitoring:
+  enabled: "true"
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -83,4 +95,11 @@ resources:
 
 nodeSelector: {}
 tolerations: []
-affinity: {}
+
+affinity:
+  enabled: "true"
+  nodeAffinity:
+    key: label
+    value: value
+  podanitaffinity:
+    enabled: "true"

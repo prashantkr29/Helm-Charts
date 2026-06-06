@@ -1,7 +1,9 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: {{ .Chart.Name }}
+  name: {{ .Release.Name }}
+  labels:
+    cnpg.io/cluster: mycluster
 spec:
   {{ if eq .Values.clustermode.enabled true}}
   instances: {{ .Values.replicaCount }}
@@ -30,9 +32,49 @@ spec:
     limits:
       cpu: {{ .Values.resources.limits.cpu }}
       memory: {{ .Values.resources.limits.memory }}
+  {{- if .Values.affinity.enabled }}
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: {{ .Values.affinity.nodeAffinity.key }}
+            operator: In
+            values:
+            - {{ .Values.affinity.nodeAffinity.value}}
+  {{- if .Values.affinity.podanitaffinity.enabled }}
+    podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: cnpg.io/cluster
+              operator: In
+              values:
+                - "{{ .Release.Name }}"
+        topologyKey: kubernetes.io/hostname
+  {{ end }}                  
+  {{ end }}  
   postgresql:
   parameters:
 {{ toYaml .Values.postgresql.parameters | indent 4 }}   
   enableSuperuserAccess: {{ .Values.superuser.enabled }}
   superuserSecret:
     name: {{ .Values.superuser.secretName }}
+  {{- if .Values.backup.enabled }}
+  backup:
+    barmanObjectStore:
+      destinationPath: {{ .Values.backup.destinationPath }}
+      endpointURL: {{ .Values.backup.endpointURL }}
+      s3Credentials:
+        accessKeyId:
+          name: {{ .Values.backup.credentials.secretName }}
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: {{ .Values.backup.credentials.secretName }}
+          key: ACCESS_SECRET_KEY
+      wal:
+        compression: {{ .Values.backup.wal.compression }}
+        maxParallel: {{ .Values.backup.wal.maxParallel }}
+      data:
+        compression: {{ .Values.backup.data.compression }}
+{{- end }}
