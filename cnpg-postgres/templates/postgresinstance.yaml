@@ -34,29 +34,13 @@ spec:
       memory: {{ .Values.resources.limits.memory }}
   {{- if .Values.affinity.enabled }}
   affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: {{ .Values.affinity.nodeAffinity.key }}
-            operator: In
-            values:
-            - {{ .Values.affinity.nodeAffinity.value}}
-  {{- if .Values.affinity.podanitaffinity.enabled }}
-    podAntiAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-            - key: cnpg.io/cluster
-              operator: In
-              values:
-                - "{{ .Release.Name }}"
-        topologyKey: kubernetes.io/hostname
-  {{ end }}                  
+    enablePodAntiAffinity: {{ .Values.affinity.podAntiAffinity.enabled }}
+    topologyKey: {{ .Values.affinity.topologyKey }}
+    podAntiAffinityType: {{ .Values.affinity.podAntiAffinity.type }}
   {{ end }}  
   postgresql:
-  parameters:
-{{ toYaml .Values.postgresql.parameters | indent 4 }}   
+    parameters:
+{{ toYaml .Values.postgresql.parameters | nindent 6 }}  
   enableSuperuserAccess: {{ .Values.superuser.enabled }}
   superuserSecret:
     name: {{ .Values.superuser.secretName }}

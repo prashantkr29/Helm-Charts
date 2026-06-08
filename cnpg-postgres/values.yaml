@@ -42,7 +42,7 @@ storage:
   resize: False
 
 backup:
-  enabled: true
+  enabled: false
   destinationPath: s3://postgres-backups/prod
   endpointURL: https://minio.example.com
   schedule: "0 2 * * *"
@@ -58,7 +58,7 @@ backup:
   retentionPolicy: "30d"
 
 monitoring:
-  enabled: "true"
+  enabled: false
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -87,10 +87,10 @@ readinessProbe:
 # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
 resources:
   requests:
-    memory: "32Mi"
+    memory: "3Gi"
     cpu: "50m"
   limits:
-    memory: "128Mi"
+    memory: "4Gi"
     cpu: "100m"
 
 nodeSelector: {}
@@ -98,8 +98,7 @@ tolerations: []
 
 affinity:
   enabled: "true"
-  nodeAffinity:
-    key: label
-    value: value
-  podanitaffinity:
-    enabled: "true"
+  podAntiAffinity:
+    enabled: "false"
+    type: "required"
+  topologyKey: kubernetes.io/hostname
